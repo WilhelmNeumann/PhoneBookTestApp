@@ -1,0 +1,17 @@
+{
+  "Application": {
+    "server": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "dataBase": {
+      "host": "127.0.0.1",
+      "port": 27017,
+      "dbName": "PhoneBook"
+    },
+    "logger": {
+      "level": "debug",
+      "fileName": "Log.log"
+    }
+  }
+}
