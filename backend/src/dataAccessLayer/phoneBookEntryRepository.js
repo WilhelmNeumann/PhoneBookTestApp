@@ -5,7 +5,8 @@ module.exports = class PhoneBookEntryRepository {
     constructor() {
         const phoneBookEntrySchema = new mongoose.Schema({
             name: String,
-            phoneNumber: String
+            phoneNumber: String,
+            lastModified: Date
         })
 
         this._phoneBookEntryModel = mongoose.model("PhoneBookEntry", phoneBookEntrySchema)
@@ -15,12 +16,9 @@ module.exports = class PhoneBookEntryRepository {
         return this._phoneBookEntryModel.find();
     }
 
-    async getByName(name) {
-        return this._phoneBookEntryModel.find({name: name});
-    }
-
     async add(phoneBookEntry) {
         const entry = new this._phoneBookEntryModel(phoneBookEntry)
+        entry.lastModified = Date.now()
         await entry.save(err => {
             if (err) console.log(err)
         })
@@ -30,7 +28,9 @@ module.exports = class PhoneBookEntryRepository {
 
     }
 
-    delete(entry) {
-
+    async delete(phoneBookEntry) {
+        await this._phoneBookEntryModel.deleteOne({name: phoneBookEntry.name}, err => {
+            if (err) console.log(err)
+        })
     }
 }

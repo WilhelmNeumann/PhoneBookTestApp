@@ -2,21 +2,19 @@
   "name": "phone_book",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "config": "^3.2.2",
-    "log4js": "^5.0.0",
-    "restify": "^8.4.0"
-  },
   "dependencies": {
     "mongoose": "^5.6.9",
     "restify-cors-middleware": "^1.1.1",
-    "winston": "^3.2.1"
+    "config": "^3.2.2",
+    "log4js": "^5.0.0",
+    "restify": "^8.4.0"
   }
 }

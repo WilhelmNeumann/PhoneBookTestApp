@@ -6,8 +6,7 @@ module.exports = {
         const server = restify.createServer();
 
         const cors = corsMiddleware({
-            preflightMaxAge: 5,
-            origins: ['*'],
+            origins: ['*']
         })
 
         server.use(cors.actual)

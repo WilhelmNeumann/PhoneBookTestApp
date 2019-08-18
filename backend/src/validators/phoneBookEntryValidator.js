@@ -1,5 +1,5 @@
 module.exports = class PhoneBookEntryValidator {
     static validate(phoneBookEntry) {
-        return phoneBookEntry.name && phoneBookEntry.phoneNumber
+        return !!phoneBookEntry.name && !!phoneBookEntry.phoneNumber
     }
 }
