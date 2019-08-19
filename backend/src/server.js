@@ -6,10 +6,14 @@ module.exports = {
         const server = restify.createServer();
 
         const cors = corsMiddleware({
-            origins: ['*']
+            preflightMaxAge: 5,
+            origins: ['*'],
+            allowHeaders:['X-App-Version'],
+            exposeHeaders:[]
         })
 
         server.use(cors.actual)
+        server.pre(cors.preflight)
         server.use(restify.plugins.bodyParser())
         server.use(restify.plugins.queryParser())
         server.listen(config.port, () => console.log(`Restify listening on ${config.host}:${config.port}`))

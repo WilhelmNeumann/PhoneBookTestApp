@@ -18,7 +18,7 @@ module.exports = class PhoneNumberController {
 
     static async add(req, res, next) {
         console.log('Add new phone number')
-        const phoneBookEntry = JSON.parse(req.body)
+        const phoneBookEntry = req.body
         const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
         if (isValid) {
             await DataBase.phoneBookEntries.add(phoneBookEntry)

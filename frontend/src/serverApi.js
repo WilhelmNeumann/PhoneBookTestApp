@@ -13,11 +13,7 @@ export default class ServerApi {
     }
 
     async add(phoneBookEntry) {
-        const resp = await fetch(`${endpoint}/add`, {
-            mode: 'no-cors',
-            method: 'POST',
-            body: JSON.stringify(phoneBookEntry)
-        })
+        const resp = await axios.post(`${endpoint}/add`, phoneBookEntry)
         return true
     }
 
