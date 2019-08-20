@@ -1,5 +1,6 @@
 const PhoneBookEntryRepository = require('./phoneBookEntryRepository')
 const mongoose = require('mongoose')
+const Logger = require('./../logger')
 
 /**
  * Initializes a database and stores repositories for data access
@@ -9,10 +10,10 @@ module.exports = {
     connect: async config => {
         try {
             await mongoose.connect(`mongodb://${config.host}:${config.port}/${config.dbName}`, {useNewUrlParser: true})
-            console.log('Successfully connected to mongodb')
-        } catch (e) {
-            console.error('Error connecting to mongodb')
-            console.log(e)
+            Logger.info('Successfully connected to mongodb')
+        } catch (exception) {
+            Logger.error('Error connecting to mongodb')
+            throw exception
         }
     }
 }

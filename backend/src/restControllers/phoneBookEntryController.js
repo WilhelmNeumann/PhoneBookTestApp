@@ -2,6 +2,7 @@ const DataBase = require('../dataAccessLayer/dataBase')
 const PhoneBookEntryValidator = require('../validators/phoneBookEntryValidator')
 const ResponseFactory = require('../responseFactory')
 const Synchronizer = require('./../synchronizer')
+const Logger = require('./../logger')
 
 /**
  * A controller that provides rest methods for working with phone book entries
@@ -9,47 +10,51 @@ const Synchronizer = require('./../synchronizer')
 module.exports = class PhoneNumberController {
 
     static async getAll(req, res) {
-        console.log('Get all phone numbers')
+        Logger.info('Get all phone numbers')
         try {
             const phoneBookEntries = await DataBase.phoneBookEntries.getAll()
             const response = ResponseFactory.createSuccessResponse(phoneBookEntries)
             res.send(response)
         } catch (exception) {
-            console.log(exception)
+            Logger.error(exception)
             const response = ResponseFactory.createErrorResponse()
             res.send(response)
         }
     }
 
     static async add(req, res) {
-        console.log('Add new phone number')
+        Logger.info('Add new phone number')
         try {
             const phoneBookEntry = req.body
-            const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
-            if (isValid) {
-                const duplicate = await DataBase.phoneBookEntries.getByPersonName(phoneBookEntry.name)
-                if (duplicate) {
-                    const response = ResponseFactory.createErrorResponse(
-                        `Phone book entry with name ${duplicate.name} is already exist`)
-                    res.send(response)
-                    return
-                }
 
-                await DataBase.phoneBookEntries.add(phoneBookEntry)
-                const response = ResponseFactory.createSuccessResponse()
-                res.send(response)
-            } else {
+            const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
+            if (!isValid) {
                 const response = ResponseFactory.createErrorResponse('You have sent invalid data, please try again')
                 res.send(response)
+                return
             }
+
+            const duplicate = await DataBase.phoneBookEntries.getByPersonName(phoneBookEntry.name)
+            if (duplicate) {
+                const response = ResponseFactory.createErrorResponse(
+                    `Phone book entry with name ${duplicate.name} is already exist`)
+                res.send(response)
+                return
+            }
+
+            await DataBase.phoneBookEntries.add(phoneBookEntry)
+            const response = ResponseFactory.createSuccessResponse()
+            res.send(response)
+
         } catch (exception) {
+            Logger.error(exception)
             const response = ResponseFactory.createErrorResponse()
             res.send(response)
         }
     }
 
     static async update(req, res) {
-        console.log('Update phone number')
+        Logger.info('Update phone number')
         try {
             const phoneBookEntry = req.body
             const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
@@ -62,13 +67,14 @@ module.exports = class PhoneNumberController {
                 res.send(response)
             }
         } catch (exception) {
+            Logger.error(exception)
             const response = ResponseFactory.createErrorResponse()
             res.send(response)
         }
     }
 
     static async delete(req, res) {
-        console.log('Delete phone number')
+        Logger.info('Delete phone number')
         try {
             const phoneBookEntry = req.body
             const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
@@ -81,18 +87,21 @@ module.exports = class PhoneNumberController {
                 res.send(response)
             }
         } catch (exception) {
+            Logger.error(exception)
             const response = ResponseFactory.createErrorResponse()
             res.send(response)
         }
     }
 
     static async upload(req, res) {
+        Logger.info('Update data base')
         try {
             const phoneBook = req.body.phoneBook
             await Synchronizer.updateDataBase(phoneBook)
             const response = ResponseFactory.createSuccessResponse('Data base was successfully updated')
             res.send(response)
         } catch (exception) {
+            Logger.error(exception)
             const response = ResponseFactory.createErrorResponse()
             res.send(response)
         }

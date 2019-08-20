@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Logger = require('./../logger')
 
 module.exports = class PhoneBookEntryRepository {
 
@@ -29,7 +30,7 @@ module.exports = class PhoneBookEntryRepository {
         const entry = new this._phoneBookEntryModel(phoneBookEntry)
         entry.lastModified = Date.now()
         await entry.save(err => {
-            if (err) console.log(err)
+            if (err) Logger.warn(err)
         })
     }
 
@@ -38,13 +39,13 @@ module.exports = class PhoneBookEntryRepository {
         entry.lastModified = Date.now()
         entry.phoneNumber = phoneBookEntry.phoneNumber
         await entry.save(err => {
-            if (err) console.log(err)
+            if (err) Logger.warn(err)
         })
     }
 
     async delete(phoneBookEntry) {
         await this._phoneBookEntryModel.deleteOne({name: phoneBookEntry.name}, err => {
-            if (err) console.log(err)
+            if (err) Logger.warn(err)
         })
     }
 }
