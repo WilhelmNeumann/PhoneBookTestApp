@@ -10,7 +10,7 @@
                 <v-card-text>
                     <v-container>
                         <v-row>
-                            <v-col v-if="editedIndex===-1" cols="12" sm="6" md="6">
+                            <v-col v-if="editMode===-1" cols="12" sm="6" md="6">
                                 <v-text-field
                                         v-model="editedItem.name"
                                         :counter="10"
@@ -40,21 +40,7 @@
             </v-card>
         </v-dialog>
 
-        <!-- Add/edit phone book entry modal dialog -->
-        <v-dialog v-model="uploadFileDialog" max-width="500px">
-            <v-card>
-                <v-card-title>
-                    <span class="headline">Upload phone numbers</span>
-                </v-card-title>
-                <v-card-text>
-                    <v-file-input v-model="fileToUpload" display-size label="File input"></v-file-input>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="closeFileUploadDialog">Cancel</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <UploadPhoneBookModalDialog :uploadDialog.sync="uploadDialog" :on-upload="initialize"/>
 
         <!-- Header -->
         <template>
@@ -69,7 +55,7 @@
                         <v-icon @click.stop="download">mdi-download</v-icon>
                     </v-btn>
                     <v-btn icon>
-                        <v-icon @click.stop="uploadFileDialog = true">mdi-upload</v-icon>
+                        <v-icon @click.stop="uploadDialog = true">mdi-upload</v-icon>
                     </v-btn>
                 </template>
             </v-toolbar>
@@ -99,15 +85,16 @@
 <script>
     import config from './../config/default'
     import ServerApi from './serverApi'
+    import UploadPhoneBookModalDialog from "./components/UploadPhoneBookModalDialog";
 
     const serverApi = new ServerApi(config.application.api)
     const phoneBookEntriesApi = serverApi.phoneBookEntries
 
     export default {
+        components: {UploadPhoneBookModalDialog},
         data: () => ({
-            fileToUpload: null,
             dialog: false,
-            uploadFileDialog: false,
+            uploadDialog: false,
             nameRules: [
                 v => !!v || 'Name is required',
                 v => v.length >= 2 || 'Name must be longer than 2 characters'
@@ -122,7 +109,7 @@
                 {text: 'Actions', value: 'action', sortable: false, width: '70px'},
             ],
             phoneBookEntries: [],
-            editedIndex: -1,
+            editMode: -1,
             editedItem: {
                 name: '',
                 phoneNumber: 0
@@ -135,19 +122,13 @@
 
         computed: {
             formTitle() {
-                return this.editedIndex === -1 ? 'New entry' : 'Edit entry'
+                return this.editMode === -1 ? 'New entry' : 'Edit entry'
             },
         },
 
         watch: {
             dialog(val) {
                 val || this.close()
-            },
-            uploadFileDialog(val) {
-                val || this.close()
-            },
-            fileToUpload(file) {
-                this.upload(file)
             }
         },
 
@@ -156,17 +137,6 @@
         },
 
         methods: {
-            async upload(file) {
-                if (!file) return
-
-                const text = await file.text()
-                const phoneBook = await JSON.parse(text)
-
-                const result = await phoneBookEntriesApi.upload(phoneBook)
-                this.initialize()
-                this.uploadFileDialog = false
-            },
-
             download() {
                 const phoneNumbers = this.phoneBookEntries.map(element => {
                     return {
@@ -192,7 +162,7 @@
             },
 
             editItem(item) {
-                this.editedIndex = this.phoneBookEntries.indexOf(item)
+                this.editMode = this.phoneBookEntries.indexOf(item)
                 this.editedItem = Object.assign({}, item)
                 this.dialog = true
             },
@@ -211,7 +181,7 @@
                 this.dialog = false
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem)
-                    this.editedIndex = -1
+                    this.editMode = -1
                 }, 300)
             },
 
@@ -224,10 +194,10 @@
                     name, phoneNumber
                 } = this.editedItem
 
-                if (this.editedIndex > -1) {
+                if (this.editMode > -1) {
                     const responseData = await phoneBookEntriesApi.update({name, phoneNumber})
                     if (responseData) {
-                        Object.assign(this.phoneBookEntries[this.editedIndex], this.editedItem)
+                        Object.assign(this.phoneBookEntries[this.editMode], this.editedItem)
                     } else {
                         alert("error")
                     }

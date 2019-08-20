@@ -90,7 +90,7 @@ module.exports = class PhoneNumberController {
         try {
             const phoneBook = req.body.phoneBook
             await Synchronizer.updateDataBase(phoneBook)
-            const response = ResponseFactory.createSuccessResponse('File uploaded')
+            const response = ResponseFactory.createSuccessResponse('Data base was successfully updated')
             res.send(response)
         } catch (exception) {
             const response = ResponseFactory.createErrorResponse()

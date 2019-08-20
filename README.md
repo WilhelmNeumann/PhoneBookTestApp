@@ -2,6 +2,8 @@
 
 ## Run application
 1. cd backend
-2. npm start // start server side
-3. cd ../frontend
-4. npm run serve // start client side
+3. npm install 
+3. npm start // start server side
+4. cd ../frontend
+5. npm install
+6. npm run serve // start client side
