@@ -1,8 +1,11 @@
 const DataBase = require('../dataAccessLayer/dataBase')
 const PhoneBookEntryValidator = require('../validators/phoneBookEntryValidator')
 const ResponseFactory = require('../responseFactory')
-const fs = require('fs');
+const Synchronizer = require('./../synchronizer')
 
+/**
+ * A controller that provides rest methods for working with phone book entries
+ */
 module.exports = class PhoneNumberController {
 
     static async getAll(req, res) {
@@ -24,6 +27,14 @@ module.exports = class PhoneNumberController {
             const phoneBookEntry = req.body
             const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
             if (isValid) {
+                const duplicate = await DataBase.phoneBookEntries.getByPersonName(phoneBookEntry.name)
+                if (duplicate) {
+                    const response = ResponseFactory.createErrorResponse(
+                        `Phone book entry with name ${duplicate.name} is already exist`)
+                    res.send(response)
+                    return
+                }
+
                 await DataBase.phoneBookEntries.add(phoneBookEntry)
                 const response = ResponseFactory.createSuccessResponse()
                 res.send(response)
@@ -76,9 +87,14 @@ module.exports = class PhoneNumberController {
     }
 
     static async upload(req, res) {
-        console.log('Download as file')
-
-        res.send(202, {message: 'File uploaded'});
-        res.send(ResponseFactory.createSuccessResponse())
+        try {
+            const phoneBook = req.body.phoneBook
+            await Synchronizer.updateDataBase(phoneBook)
+            const response = ResponseFactory.createSuccessResponse('File uploaded')
+            res.send(response)
+        } catch (exception) {
+            const response = ResponseFactory.createErrorResponse()
+            res.send(response)
+        }
     }
 }

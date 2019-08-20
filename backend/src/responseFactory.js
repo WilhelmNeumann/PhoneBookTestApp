@@ -14,7 +14,9 @@ class SuccessResponse {
     }
 }
 
-
+/**
+ * Factory for creating responses for client
+ */
 module.exports = class ResponseFactory {
     static createErrorResponse(message, statusCode) {
         return new ErrorResponse(message, statusCode)

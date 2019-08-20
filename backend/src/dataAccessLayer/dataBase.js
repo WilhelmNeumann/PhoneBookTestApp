@@ -1,7 +1,9 @@
 const PhoneBookEntryRepository = require('./phoneBookEntryRepository')
 const mongoose = require('mongoose')
 
-
+/**
+ * Initializes a database and stores repositories for data access
+ */
 module.exports = {
     phoneBookEntries: new PhoneBookEntryRepository(),
     connect: async config => {

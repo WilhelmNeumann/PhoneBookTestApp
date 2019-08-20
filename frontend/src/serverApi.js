@@ -28,6 +28,11 @@ class PhoneBookEntriesApi {
         const response = await axios.post(this.url + `/delete`, phoneBookEntry)
         return response.data
     }
+
+    async upload(phoneBook) {
+        const response = await axios.post(this.url + `/upload`, phoneBook)
+        return response.data
+    }
 }
 
 export default class ServerApi {

@@ -1,44 +1,57 @@
 <template>
     <div>
         <!-- Add/edit phone book entry modal dialog -->
-        <v-dialog v-model="dialog" persistent max-width="500px">
+        <v-dialog v-model="dialog" max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
                 </v-card-title>
 
                 <v-card-text>
-                    <v-form ref="form"
-                            v-model="valid">
-                        <v-container>
-                            <v-row>
-                                <v-col v-if="editedIndex===-1" cols="12" sm="6" md="6">
-                                    <v-text-field
-                                            v-model="editedItem.name"
-                                            :counter="10"
-                                            :rules="nameRules"
-                                            label="Name"
-                                            required
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col>
-                                    <v-text-field
-                                            v-model="editedItem.phoneNumber"
-                                            :counter="10"
-                                            :rules="phoneNumberRules"
-                                            label="Phone number"
-                                            required
-                                    ></v-text-field>
-                                </v-col>
-                            </v-row>
-                        </v-container>
-                    </v-form>
+                    <v-container>
+                        <v-row>
+                            <v-col v-if="editedIndex===-1" cols="12" sm="6" md="6">
+                                <v-text-field
+                                        v-model="editedItem.name"
+                                        :counter="10"
+                                        :rules="nameRules"
+                                        label="Name"
+                                        required
+                                ></v-text-field>
+                            </v-col>
+                            <v-col>
+                                <v-text-field
+                                        v-model="editedItem.phoneNumber"
+                                        :counter="10"
+                                        :rules="phoneNumberRules"
+                                        label="Phone number"
+                                        required
+                                ></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-container>
                 </v-card-text>
 
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
                     <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Add/edit phone book entry modal dialog -->
+        <v-dialog v-model="uploadFileDialog" max-width="500px">
+            <v-card>
+                <v-card-title>
+                    <span class="headline">Upload phone numbers</span>
+                </v-card-title>
+                <v-card-text>
+                    <v-file-input v-model="fileToUpload" display-size label="File input"></v-file-input>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="closeFileUploadDialog">Cancel</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -53,15 +66,14 @@
                         <v-icon @click.stop="dialog = true">mdi-plus-circle</v-icon>
                     </v-btn>
                     <v-btn icon>
-                        <v-icon @click.stop="dialog = true">mdi-upload</v-icon>
+                        <v-icon @click.stop="download">mdi-download</v-icon>
                     </v-btn>
                     <v-btn icon>
-                        <v-icon @click.stop="download">mdi-download</v-icon>
+                        <v-icon @click.stop="uploadFileDialog = true">mdi-upload</v-icon>
                     </v-btn>
                 </template>
             </v-toolbar>
         </template>
-
         <!-- Phone numbers table -->
         <v-data-table :headers="headers"
                       :items="phoneBookEntries"
@@ -93,8 +105,9 @@
 
     export default {
         data: () => ({
-            valid: false,
+            fileToUpload: null,
             dialog: false,
+            uploadFileDialog: false,
             nameRules: [
                 v => !!v || 'Name is required',
                 v => v.length >= 2 || 'Name must be longer than 2 characters'
@@ -105,7 +118,7 @@
             ],
             headers: [
                 {text: 'Name', value: 'name',},
-                {text: 'PhoneNumbers', value: 'phoneNumber'},
+                {text: 'PhoneNumber', value: 'phoneNumber'},
                 {text: 'Actions', value: 'action', sortable: false, width: '70px'},
             ],
             phoneBookEntries: [],
@@ -130,6 +143,12 @@
             dialog(val) {
                 val || this.close()
             },
+            uploadFileDialog(val) {
+                val || this.close()
+            },
+            fileToUpload(file) {
+                this.upload(file)
+            }
         },
 
         created() {
@@ -137,6 +156,17 @@
         },
 
         methods: {
+            async upload(file) {
+                if (!file) return
+
+                const text = await file.text()
+                const phoneBook = await JSON.parse(text)
+
+                const result = await phoneBookEntriesApi.upload(phoneBook)
+                this.initialize()
+                this.uploadFileDialog = false
+            },
+
             download() {
                 const phoneNumbers = this.phoneBookEntries.map(element => {
                     return {
@@ -185,12 +215,16 @@
                 }, 300)
             },
 
-            async save() {
-                if (this.editedIndex > -1) {
+            closeFileUploadDialog() {
+                this.uploadFileDialog = false
+            },
 
-                    const {
-                        name, phoneNumber
-                    } = this.editedItem
+            async save() {
+                const {
+                    name, phoneNumber
+                } = this.editedItem
+
+                if (this.editedIndex > -1) {
                     const responseData = await phoneBookEntriesApi.update({name, phoneNumber})
                     if (responseData) {
                         Object.assign(this.phoneBookEntries[this.editedIndex], this.editedItem)
@@ -199,19 +233,15 @@
                     }
 
                 } else {
-                    const {
-                        name, phoneNumber
-                    } = this.editedItem
                     const responseData = await phoneBookEntriesApi.add({name, phoneNumber})
-
-                    if (responseData) {
-                        this.phoneBookEntries.push(this.editedItem)
-                    } else {
-                        alert("error")
+                    if (responseData.status === 'error') {
+                        alert(responseData.payload)
+                        return
                     }
+                    this.phoneBookEntries.push(this.editedItem)
                 }
                 this.close()
-            },
-        },
+            }
+        }
     }
 </script>

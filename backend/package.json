@@ -11,10 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongoose": "^5.6.9",
-    "restify-cors-middleware": "^1.1.1",
     "config": "^3.2.2",
     "log4js": "^5.0.0",
-    "restify": "^8.4.0"
+    "mongoose": "^5.6.9",
+    "multi-rest": "^2.0.2",
+    "restify": "^8.4.0",
+    "restify-cors-middleware": "^1.1.1"
   }
 }
