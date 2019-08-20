@@ -19,6 +19,11 @@ class PhoneBookEntriesApi {
         return response.data
     }
 
+    async update(phoneBookEntry) {
+        const response = await axios.post(this.url + `/update`, phoneBookEntry)
+        return response.data
+    }
+
     async delete(phoneBookEntry) {
         const response = await axios.post(this.url + `/delete`, phoneBookEntry)
         return response.data

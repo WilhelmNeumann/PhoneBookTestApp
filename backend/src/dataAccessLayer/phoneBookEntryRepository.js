@@ -25,10 +25,9 @@ module.exports = class PhoneBookEntryRepository {
     }
 
     async update(phoneBookEntry) {
-        const entry = this._phoneBookEntryModel.find({name: phoneBookEntry.name});
-
-
+        const entry = await this._phoneBookEntryModel.findOne({name: phoneBookEntry.name});
         entry.lastModified = Date.now()
+        entry.phoneNumber = phoneBookEntry.phoneNumber
         await entry.save(err => {
             if (err) console.log(err)
         })

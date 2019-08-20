@@ -8,22 +8,31 @@
                 </v-card-title>
 
                 <v-card-text>
-                    <v-container>
-                        <v-row>
-                            <v-col v-if="editedIndex===-1" cols="12" sm="6" md="6">
-                                <v-text-field required
-                                              v-model="editedItem.name"
-                                              label="Name*">
-                                </v-text-field>
-                            </v-col>
-                            <v-col>
-                                <v-text-field required
-                                              v-model="editedItem.phoneNumber"
-                                              label="Phone number*">
-                                </v-text-field>
-                            </v-col>
-                        </v-row>
-                    </v-container>
+                    <v-form ref="form"
+                            v-model="valid">
+                        <v-container>
+                            <v-row>
+                                <v-col v-if="editedIndex===-1" cols="12" sm="6" md="6">
+                                    <v-text-field
+                                            v-model="editedItem.name"
+                                            :counter="10"
+                                            :rules="nameRules"
+                                            label="Name"
+                                            required
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col>
+                                    <v-text-field
+                                            v-model="editedItem.phoneNumber"
+                                            :counter="10"
+                                            :rules="phoneNumberRules"
+                                            label="Phone number"
+                                            required
+                                    ></v-text-field>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-form>
                 </v-card-text>
 
                 <v-card-actions>
@@ -34,7 +43,24 @@
             </v-card>
         </v-dialog>
 
-        <Header/>
+        <!-- Header -->
+        <template>
+            <v-toolbar>
+                <v-toolbar-title>Phone book test application</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <template v-if="$vuetify.breakpoint.smAndUp">
+                    <v-btn icon>
+                        <v-icon @click.stop="dialog = true">mdi-plus-circle</v-icon>
+                    </v-btn>
+                    <v-btn icon>
+                        <v-icon @click.stop="dialog = true">mdi-upload</v-icon>
+                    </v-btn>
+                    <v-btn icon>
+                        <v-icon @click.stop="download">mdi-download</v-icon>
+                    </v-btn>
+                </template>
+            </v-toolbar>
+        </template>
 
         <!-- Phone numbers table -->
         <v-data-table :headers="headers"
@@ -52,14 +78,13 @@
                 </v-icon>
             </template>
             <template v-slot:no-data>
-                <v-btn color="primary" @click="initialize">Reset</v-btn>
+                <v-btn color="#fff" @click="initialize">Reset</v-btn>
             </template>
         </v-data-table>
     </div>
 </template>
 
 <script>
-    import Header from "./components/Header";
     import config from './../config/default'
     import ServerApi from './serverApi'
 
@@ -67,9 +92,17 @@
     const phoneBookEntriesApi = serverApi.phoneBookEntries
 
     export default {
-        components: {Header},
         data: () => ({
+            valid: false,
             dialog: false,
+            nameRules: [
+                v => !!v || 'Name is required',
+                v => v.length >= 2 || 'Name must be longer than 2 characters'
+            ],
+            phoneNumberRules: [
+                v => !!v || 'Phone number is required',
+                v => v.length >= 5 || 'Phone number must be longer than 5 characters'
+            ],
             headers: [
                 {text: 'Name', value: 'name',},
                 {text: 'PhoneNumbers', value: 'phoneNumber'},
@@ -104,6 +137,26 @@
         },
 
         methods: {
+            download() {
+                const phoneNumbers = this.phoneBookEntries.map(element => {
+                    return {
+                        name: element.name,
+                        phoneNumber: element.phoneNumber
+                    }
+                })
+
+                const content = {
+                    phoneBook: phoneNumbers
+                }
+
+                const stringContent = JSON.stringify(content)
+                const a = document.createElement('a');
+                const file = new Blob([stringContent], {type: 'text/json'});
+                a.href = URL.createObjectURL(file);
+                a.download = 'phoneNumbers.json';
+                a.click();
+            },
+
             async initialize() {
                 this.phoneBookEntries = await phoneBookEntriesApi.getAll()
             },
@@ -134,7 +187,17 @@
 
             async save() {
                 if (this.editedIndex > -1) {
-                    Object.assign(this.phoneBookEntries[this.editedIndex], this.editedItem)
+
+                    const {
+                        name, phoneNumber
+                    } = this.editedItem
+                    const responseData = await phoneBookEntriesApi.update({name, phoneNumber})
+                    if (responseData) {
+                        Object.assign(this.phoneBookEntries[this.editedIndex], this.editedItem)
+                    } else {
+                        alert("error")
+                    }
+
                 } else {
                     const {
                         name, phoneNumber

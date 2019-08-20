@@ -6,5 +6,6 @@ module.exports = class Router {
         server.post('/api/phone/update', PhoneNumberController.update)
         server.post('/api/phone/delete', PhoneNumberController.delete)
         server.post('/api/phone/add', PhoneNumberController.add)
+        server.post('/api/phone/upload', PhoneNumberController.upload)
     }
 }

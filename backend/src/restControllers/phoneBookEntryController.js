@@ -1,6 +1,7 @@
 const DataBase = require('../dataAccessLayer/dataBase')
 const PhoneBookEntryValidator = require('../validators/phoneBookEntryValidator')
 const ResponseFactory = require('../responseFactory')
+const fs = require('fs');
 
 module.exports = class PhoneNumberController {
 
@@ -72,5 +73,12 @@ module.exports = class PhoneNumberController {
             const response = ResponseFactory.createErrorResponse()
             res.send(response)
         }
+    }
+
+    static async upload(req, res) {
+        console.log('Download as file')
+
+        res.send(202, {message: 'File uploaded'});
+        res.send(ResponseFactory.createSuccessResponse())
     }
 }
