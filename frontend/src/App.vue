@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Add/edit phone book entry modal dialog -->
-        <v-dialog v-model="dialog" max-width="500px">
+        <v-dialog v-model="dialog" persistent max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
@@ -11,12 +11,16 @@
                     <v-container>
                         <v-row>
                             <v-col v-if="editedIndex===-1" cols="12" sm="6" md="6">
-                                <v-text-field required v-model="editedItem.name"
-                                              label="Name"></v-text-field>
+                                <v-text-field required
+                                              v-model="editedItem.name"
+                                              label="Name*">
+                                </v-text-field>
                             </v-col>
-                            <v-col cols="12" sm="6" md="6">
-                                <v-text-field required v-model="editedItem.phoneNumber"
-                                              label="Phone number"></v-text-field>
+                            <v-col>
+                                <v-text-field required
+                                              v-model="editedItem.phoneNumber"
+                                              label="Phone number*">
+                                </v-text-field>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -30,22 +34,7 @@
             </v-card>
         </v-dialog>
 
-        <!-- Header -->
-        <v-toolbar>
-            <v-toolbar-title>Phone book test application</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <template v-if="$vuetify.breakpoint.smAndUp">
-                <v-btn icon>
-                    <v-icon @click.stop="dialog = true">mdi-plus-circle</v-icon>
-                </v-btn>
-                <v-btn icon>
-                    <v-icon @click.stop="dialog = true">mdi-upload</v-icon>
-                </v-btn>
-                <v-btn icon>
-                    <v-icon>mdi-download</v-icon>
-                </v-btn>
-            </template>
-        </v-toolbar>
+        <Header/>
 
         <!-- Phone numbers table -->
         <v-data-table :headers="headers"
@@ -70,6 +59,7 @@
 </template>
 
 <script>
+    import Header from "./components/Header";
     import config from './../config/default'
     import ServerApi from './serverApi'
 
@@ -77,6 +67,7 @@
     const phoneBookEntriesApi = serverApi.phoneBookEntries
 
     export default {
+        components: {Header},
         data: () => ({
             dialog: false,
             headers: [
