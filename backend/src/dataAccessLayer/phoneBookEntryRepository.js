@@ -13,7 +13,7 @@ module.exports = class PhoneBookEntryRepository {
     }
 
     async getAll() {
-        return this._phoneBookEntryModel.find();
+        return this._phoneBookEntryModel.find()
     }
 
     async add(phoneBookEntry) {
@@ -24,8 +24,14 @@ module.exports = class PhoneBookEntryRepository {
         })
     }
 
-    update(entry) {
+    async update(phoneBookEntry) {
+        const entry = this._phoneBookEntryModel.find({name: phoneBookEntry.name});
 
+
+        entry.lastModified = Date.now()
+        await entry.save(err => {
+            if (err) console.log(err)
+        })
     }
 
     async delete(phoneBookEntry) {

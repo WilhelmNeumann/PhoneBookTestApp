@@ -1,53 +1,76 @@
 const DataBase = require('../dataAccessLayer/dataBase')
 const PhoneBookEntryValidator = require('../validators/phoneBookEntryValidator')
+const ResponseFactory = require('../responseFactory')
 
 module.exports = class PhoneNumberController {
 
     static async getAll(req, res) {
+        console.log('Get all phone numbers')
         try {
-            console.log('Get all phone numbers')
             const phoneBookEntries = await DataBase.phoneBookEntries.getAll()
-            res.send(phoneBookEntries)
+            const response = ResponseFactory.createSuccessResponse(phoneBookEntries)
+            res.send(response)
         } catch (exception) {
             console.log(exception)
-            res.send({
-                requestStatus: 'error'
-            })
+            const response = ResponseFactory.createErrorResponse()
+            res.send(response)
         }
     }
 
-    static async add(req, res, next) {
+    static async add(req, res) {
         console.log('Add new phone number')
-        const phoneBookEntry = req.body
-        const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
-        if (isValid) {
-            await DataBase.phoneBookEntries.add(phoneBookEntry)
-            res.send({requestStatus: 'ok'})
-        } else {
-            res.send({
-                requestStatus: 'error',
-                message: 'You tried to send invalid data'
-            })
+        try {
+            const phoneBookEntry = req.body
+            const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
+            if (isValid) {
+                await DataBase.phoneBookEntries.add(phoneBookEntry)
+                const response = ResponseFactory.createSuccessResponse()
+                res.send(response)
+            } else {
+                const response = ResponseFactory.createErrorResponse('You have sent invalid data, please try again')
+                res.send(response)
+            }
+        } catch (exception) {
+            const response = ResponseFactory.createErrorResponse()
+            res.send(response)
         }
-        return next()
     }
 
-    static async update(req, res, next) {
+    static async update(req, res) {
         console.log('Update phone number')
+        try {
+            const phoneBookEntry = req.body
+            const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
+            if (isValid) {
+                await DataBase.phoneBookEntries.update(phoneBookEntry)
+                const response = ResponseFactory.createSuccessResponse()
+                res.send(response)
+            } else {
+                const response = ResponseFactory.createErrorResponse('You have sent invalid data, please try again')
+                res.send(response)
+            }
+        } catch (exception) {
+            const response = ResponseFactory.createErrorResponse()
+            res.send(response)
+        }
     }
 
     static async delete(req, res) {
         console.log('Delete phone number')
-        const phoneBookEntry = JSON.parse(req.body)
-        const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
-        if (isValid) {
-            await DataBase.phoneBookEntries.delete(phoneBookEntry)
-            res.send({requestStatus: 'ok'})
-        } else {
-            res.send({
-                requestStatus: 'error',
-                message: 'You tried to send invalid data'
-            })
+        try {
+            const phoneBookEntry = req.body
+            const isValid = PhoneBookEntryValidator.validate(phoneBookEntry)
+            if (isValid) {
+                await DataBase.phoneBookEntries.delete(phoneBookEntry)
+                const response = ResponseFactory.createSuccessResponse()
+                res.send(response)
+            } else {
+                const response = ResponseFactory.createErrorResponse('You have sent invalid data, please try again')
+                res.send(response)
+            }
+        } catch (exception) {
+            const response = ResponseFactory.createErrorResponse()
+            res.send(response)
         }
     }
 }

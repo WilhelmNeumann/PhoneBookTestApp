@@ -8,22 +8,17 @@ export default class ServerApi {
     }
 
     async getAll() {
-        const response = await fetch(`${endpoint}/getAll`)
-        return response.json()
+        const response = await axios.get(`${endpoint}/getAll`)
+        return response.data.payload
     }
 
     async add(phoneBookEntry) {
-        const resp = await axios.post(`${endpoint}/add`, phoneBookEntry)
-        return true
+        const response = await axios.post(`${endpoint}/add`, phoneBookEntry)
+        return response.data
     }
 
     async delete(phoneBookEntry) {
-        const resp = await fetch(`${endpoint}/delete`, {
-            mode: 'no-cors',
-            method: 'POST',
-            body: JSON.stringify(phoneBookEntry)
-        })
-
-        return true
+        const response = await axios.post(`${endpoint}/delete`, phoneBookEntry)
+        return response.data
     }
 }

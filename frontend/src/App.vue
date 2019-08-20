@@ -10,7 +10,7 @@
                 <v-card-text>
                     <v-container>
                         <v-row>
-                            <v-col cols="12" sm="6" md="6">
+                            <v-col v-if="editedIndex===-1" cols="12" sm="6" md="6">
                                 <v-text-field required v-model="editedItem.name"
                                               label="Name"></v-text-field>
                             </v-col>
@@ -146,8 +146,9 @@
                     const {
                         name, phoneNumber
                     } = this.editedItem
-                    const success = await serverApi.add({name, phoneNumber})
-                    if (success) {
+                    const responseData = await serverApi.add({name, phoneNumber})
+
+                    if (responseData) {
                         this.phoneBookEntries.push(this.editedItem)
                     } else {
                         alert("error")
