@@ -70,9 +70,11 @@
 </template>
 
 <script>
+    import config from './../config/default'
     import ServerApi from './serverApi'
 
-    const serverApi = new ServerApi('')
+    const serverApi = new ServerApi(config.application.api)
+    const phoneBookEntriesApi = serverApi.phoneBookEntries
 
     export default {
         data: () => ({
@@ -112,7 +114,7 @@
 
         methods: {
             async initialize() {
-                this.phoneBookEntries = await serverApi.getAll()
+                this.phoneBookEntries = await phoneBookEntriesApi.getAll()
             },
 
             editItem(item) {
@@ -128,7 +130,7 @@
                 const {
                     name, phoneNumber
                 } = entry
-                await serverApi.delete({name, phoneNumber})
+                await phoneBookEntriesApi.delete({name, phoneNumber})
             },
 
             close() {
@@ -146,7 +148,7 @@
                     const {
                         name, phoneNumber
                     } = this.editedItem
-                    const responseData = await serverApi.add({name, phoneNumber})
+                    const responseData = await phoneBookEntriesApi.add({name, phoneNumber})
 
                     if (responseData) {
                         this.phoneBookEntries.push(this.editedItem)
