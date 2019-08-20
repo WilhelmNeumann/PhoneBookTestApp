@@ -185,10 +185,6 @@
                 }, 300)
             },
 
-            closeFileUploadDialog() {
-                this.uploadFileDialog = false
-            },
-
             async save() {
                 const {
                     name, phoneNumber
@@ -196,12 +192,11 @@
 
                 if (this.editMode > -1) {
                     const responseData = await phoneBookEntriesApi.update({name, phoneNumber})
-                    if (responseData) {
-                        Object.assign(this.phoneBookEntries[this.editMode], this.editedItem)
-                    } else {
-                        alert("error")
+                    if (responseData.status === 'error') {
+                        alert(responseData.payload)
+                        return
                     }
-
+                    Object.assign(this.phoneBookEntries[this.editMode], this.editedItem)
                 } else {
                     const responseData = await phoneBookEntriesApi.add({name, phoneNumber})
                     if (responseData.status === 'error') {

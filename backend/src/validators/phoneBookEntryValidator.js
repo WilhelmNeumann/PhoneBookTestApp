@@ -5,6 +5,9 @@ module.exports = class PhoneBookEntryValidator {
      * @returns {boolean} - is the object valid or not
      */
     static validate(phoneBookEntry) {
-        return !!phoneBookEntry.name && !!phoneBookEntry.phoneNumber
+        return !!phoneBookEntry.name &&
+            !!phoneBookEntry.phoneNumber &&
+            phoneBookEntry.name.length >= 2 &&
+            /^\d+$/.test(phoneBookEntry.phoneNumber)
     }
 }
