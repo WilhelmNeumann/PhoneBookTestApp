@@ -13,7 +13,7 @@
   "dependencies": {
     "config": "^3.2.2",
     "log4js": "^5.0.0",
-    "mongoose": "^5.6.9",
+    "mongoose": "^5.7.5",
     "multi-rest": "^2.0.2",
     "restify": "^8.4.0",
     "restify-cors-middleware": "^1.1.1"
